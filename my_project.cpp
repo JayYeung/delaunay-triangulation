@@ -6,6 +6,7 @@
 #include <queue>
 #include <set>
 #include <cassert>
+#include <chrono>
 
 #include "cpp_template.hpp"
 
@@ -304,6 +305,7 @@ int main(int argc, char **argv) {
         print("Using input path: ", node_path);
         print("Using output path: ", out_path);
     }
+    print();
 
     bool alternating_cuts = false; 
     print("0: vertical cuts only (default), 1: alternating cuts");
@@ -313,6 +315,7 @@ int main(int argc, char **argv) {
         alternating_cuts = (std::string(argv[2])[0] == 'a' || std::string(argv[2])[0] == 'A');
         print("Using alternating cuts flag: ", alternating_cuts);
     }
+    print();
 
     exactinit(); 
 
@@ -346,7 +349,10 @@ int main(int argc, char **argv) {
     }
 
     // compute DT
+    auto start = std::chrono::steady_clock::now();
     auto [left, _] = dt(points, alternating_cuts);
+    auto end = std::chrono::steady_clock::now();
+    print("DT computed in ", std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count(), " ms");
 
     // write output
     std::ofstream out_file(out_path);
