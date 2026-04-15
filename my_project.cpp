@@ -7,6 +7,7 @@
 #include <set>
 #include <cassert>
 #include <chrono>
+#include <algorithm>
 
 #include "cpp_template.hpp"
 
@@ -185,7 +186,33 @@ pair<std::vector<pair<REAL, REAL>>, std::vector<pair<REAL, REAL>>> vertical_cut(
     return {L_points, R_points};
 }
 
-pair<Edge*, Edge*> dt(std::vector<pair<REAL, REAL>>& points, bool alternating_cuts) {
+
+
+pair<std::vector<pair<REAL, REAL>>, std::vector<pair<REAL, REAL>>> alternating_cut(std::vector<pair<REAL, REAL>>& points, int depth) {
+    int n = static_cast<int>(points.size());
+    int half = n / 2;
+    std::vector<pair<REAL, REAL>> L_points, R_points;
+    if (depth % 2 == 0) {
+        // print("blip");
+        std::nth_element(points.begin(), points.begin() + half, points.end(), [](const pair<REAL, REAL>& a, const pair<REAL, REAL>& b) {
+            return a.first < b.first || (a.first == b.first && a.second < b.second);
+        });
+
+    }
+    else {
+        // print("blop");
+        std::nth_element(points.begin(), points.begin() + half, points.end(), [](const pair<REAL, REAL>& a, const pair<REAL, REAL>& b) {
+            return a.second < b.second || (a.second == b.second && a.first < b.first);
+        });
+    }
+
+    L_points = std::vector<pair<REAL, REAL>>(points.begin(), points.begin() + half);
+    R_points = std::vector<pair<REAL, REAL>>(points.begin() + half, points.end());  
+
+    return {L_points, R_points};
+}
+
+pair<Edge*, Edge*> dt(std::vector<pair<REAL, REAL>>& points, bool alternating_cuts, int depth = 0) {
     int n = static_cast<int>(points.size());
 
     if (n == 2) {
@@ -222,19 +249,18 @@ pair<Edge*, Edge*> dt(std::vector<pair<REAL, REAL>>& points, bool alternating_cu
     }
 
     vector<pair<REAL, REAL>> L_points, R_points;
-
     if (!alternating_cuts) {
         auto cuts = vertical_cut(points);
         L_points = cuts.first;
         R_points = cuts.second;
     }  else {
-        auto cuts = vertical_cut(points);
+        auto cuts = alternating_cut(points, depth);
         L_points = cuts.first;
         R_points = cuts.second;
     }
 
-    auto [ldo, ldi] = dt(L_points, alternating_cuts);
-    auto [rdi, rdo] = dt(R_points, alternating_cuts);
+    auto [ldo, ldi] = dt(L_points, alternating_cuts, depth + 1);
+    auto [rdi, rdo] = dt(R_points, alternating_cuts, depth + 1);
 
     // compute the lower common tangent of L and R
     do {
@@ -292,6 +318,8 @@ pair<Edge*, Edge*> dt(std::vector<pair<REAL, REAL>>& points, bool alternating_cu
 }
 
 int main(int argc, char **argv) {
+
+    auto program_start = std::chrono::steady_clock::now();
 
     std::string node_path, out_path;
     if (argc <= 1) {
@@ -422,5 +450,8 @@ int main(int argc, char **argv) {
         // print(index, a, b, c);
     }
 
+    auto program_end = std::chrono::steady_clock::now();
+    print("Total program time: ", std::chrono::duration_cast<std::chrono::milliseconds>(program_end - program_start).count(), " ms");
+    print("Total triangles in triangulation: ", triangles.size()); 
     return 0;
 }
