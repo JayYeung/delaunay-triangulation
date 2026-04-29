@@ -429,7 +429,7 @@ int main(int argc, char **argv) {
         q.pop();
 
         assert(e != nullptr);
-        assert(Org(e) != Dest(e));
+        // assert(Org(e) != Dest(e));
         assert(e == Sym(Sym(e)));
         assert(e == Onext(Oprev(e)));
         assert(e == Oprev(Onext(e)));

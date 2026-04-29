@@ -1,5 +1,7 @@
 ## CS274 Divide and ConquerDelaunay Triangulation Project :D
 
+By Jay Yeung (jayyeung@berkeley.edu)
+
 <img src="spiral.png" width="300">
 
 ## setup
@@ -47,6 +49,12 @@ example2: ./my_project tests/ttimeu1000000.node alternating
 | tests/ttimeu10000.node   | 15 ms    | 9 ms        | 59 ms                 | 45 ms                    |
 | tests/ttimeu100000.node  | 125 ms   | 73 ms       | 650 ms                | 468 ms                   |
 | tests/ttimeu1000000.node | 1788 ms  | 869 ms      | 7730 ms               | 6198 ms                  |
+
+## questions
+
+Can you create a point set for which the vertical cuts algorithm is notably faster than the alternating cuts algorithm? What do you think accounts for the discrepancy?
+
+Answer: A test case with many points uniformly distributed on a very flat rectangle would cause this issue. I'm noticing the alternating cuts algorithm is maybe around 20% slower than the vertical cuts algorithm. (see `generate_bad_case.ipynb` and `tests/bad.node`) The discrepancy could be caused by the additional overhead of the cuts strategy and more tree depth and splitting across horizontally doesn't do much as you need to merge them all back together again.
 
 ## final thoughts
 
